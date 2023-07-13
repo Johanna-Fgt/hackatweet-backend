@@ -8,7 +8,6 @@ const { checkBody } = require('../modules/checkBody');
 /* POST /signup -  Create new User in db + return token */
 router.post('/signup', (req, res) => {
 	const { firstname, username, password } = req.body;
-	console.log(firstname);
 	// Check if all user's informations are fulfilled
 	if (!checkBody(req.body, ['firstname', 'username', 'password'])) {
 		res.json({ result: false, error: 'Missing or empty fields' });
@@ -29,7 +28,12 @@ router.post('/signup', (req, res) => {
 			});
 
 			newUser.save().then((newUser) => {
-				res.json({ result: true, token: newUser.token });
+				res.json({
+					result: true,
+					token: newUser.token,
+					firstname: newUser.firstname,
+					username: newUser.username,
+				});
 			});
 		} else {
 			// User already exists in database
@@ -52,7 +56,12 @@ router.post('/signin', (req, res) => {
 		username: { $regex: new RegExp(username, 'i') },
 	}).then((data) => {
 		if (data && bcrypt.compareSync(password, data.password)) {
-			res.json({ result: true, token: data.token });
+			res.json({
+				result: true,
+				token: data.token,
+				firstname: data.firstname,
+				username: data.username,
+			});
 		} else {
 			res.json({ result: false, error: 'User not found or wrong password' });
 		}

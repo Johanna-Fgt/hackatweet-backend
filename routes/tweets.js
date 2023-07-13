@@ -42,9 +42,9 @@ router.post('/new', (req, res) => {
 				author: data._id,
 			});
 
-			newTweet.save().then((newTweet) => {
-				res.json({ result: true, tweet: newTweet });
-			});
+			newTweet
+				.save()
+				.then((data) => res.json({ result: true, date: data.date }));
 		} else {
 			res.json({ result: false });
 		}
