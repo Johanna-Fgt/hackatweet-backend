@@ -7,5 +7,5 @@ const bcrypt = require("bcrypt");
 router.get("/", function (req, res, next) {
   res.send("respond with a resource");
 });
-// Hello
+
 module.exports = router;
