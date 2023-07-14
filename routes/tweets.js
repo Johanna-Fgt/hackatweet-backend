@@ -11,13 +11,6 @@ router.get('/', (req, res) => {
 		.populate('author')
 		.then((data) => {
 			if (data) {
-				// const tweets = data.map((tweet) => ({
-				// 	description: tweet.description,
-				// 	date: tweet.date,
-				// 	username: tweet.author.username,
-				// 	firstname: tweet.author.firstname,
-				// 	hashtag: tweet.hashtag,
-				// }));
 				res.json({ result: true, tweets: data });
 			} else {
 				res.json({ result: false });
@@ -46,6 +39,71 @@ router.post('/new', (req, res) => {
 			newTweet
 				.save()
 				.then((data) => res.json({ result: true, date: data.date }));
+		} else {
+			res.json({ result: false });
+		}
+	});
+});
+
+/* UPDATE /:id - Update likes counter */
+router.put('/update/:id', (req, res) => {
+	const { id } = req.params;
+	const { token } = req.body;
+
+	User.findOne({ token }).then((user) => {
+		if (user.likedTweets.includes(id)) {
+			User.updateOne({ token }, { $pull: { likedTweets: id } }).then((data) => {
+				if (!data.modifiedCount) {
+					res.json({ result: false });
+				} else {
+					Tweet.updateOne({ _id: id }, { $inc: { isLikedCount: -1 } }).then(
+						(data) => {
+							if (data.modifiedCount > 0) {
+								res.json({ result: true, likedTweets: user.likedTweets });
+							} else {
+								res.json({ result: false });
+							}
+						}
+					);
+				}
+			});
+		} else {
+			User.updateOne({ token }, { $addToSet: { likedTweets: id } }).then(
+				(data) => {
+					if (!data.modifiedCount) {
+						res.json({ result: false });
+					} else {
+						Tweet.updateOne({ _id: id }, { $inc: { isLikedCount: 1 } }).then(
+							(data) => {
+								if (data.modifiedCount > 0) {
+									res.json({ result: true });
+								} else {
+									res.json({ result: false });
+								}
+							}
+						);
+					}
+				}
+			);
+		}
+	});
+});
+
+/* DELETE /:id - Delete a specific tweet */
+router.delete('/delete/:id', (req, res) => {
+	const { id } = req.params;
+	const { token } = req.body;
+	//TODO CAREFULL SUR QUI PEUT DELETE
+	User.findOne({ token }).then((data) => {
+		if (!data) {
+			res.json({ result: false });
+			return;
+		}
+	});
+
+	Tweet.deleteOne({ _id: id }).then((data) => {
+		if (data.deletedCount > 0) {
+			res.json({ result: true });
 		} else {
 			res.json({ result: false });
 		}

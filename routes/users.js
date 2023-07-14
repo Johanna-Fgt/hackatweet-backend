@@ -33,6 +33,7 @@ router.post('/signup', (req, res) => {
 					token: newUser.token,
 					firstname: newUser.firstname,
 					username: newUser.username,
+					likedTweets: data.likedTweets,
 				});
 			});
 		} else {
@@ -61,6 +62,7 @@ router.post('/signin', (req, res) => {
 				token: data.token,
 				firstname: data.firstname,
 				username: data.username,
+				likedTweets: data.likedTweets,
 			});
 		} else {
 			res.json({ result: false, error: 'User not found or wrong password' });
