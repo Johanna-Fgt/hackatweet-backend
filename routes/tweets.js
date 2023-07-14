@@ -11,14 +11,14 @@ router.get('/', (req, res) => {
 		.populate('author')
 		.then((data) => {
 			if (data) {
-				const tweets = data.map((tweet) => ({
-					description: tweet.description,
-					date: tweet.date,
-					username: tweet.author.username,
-					firstname: tweet.author.firstname,
-					hashtag: tweet.hashtag,
-				}));
-				res.json({ result: true, tweets });
+				// const tweets = data.map((tweet) => ({
+				// 	description: tweet.description,
+				// 	date: tweet.date,
+				// 	username: tweet.author.username,
+				// 	firstname: tweet.author.firstname,
+				// 	hashtag: tweet.hashtag,
+				// }));
+				res.json({ result: true, tweets: data });
 			} else {
 				res.json({ result: false });
 			}
@@ -39,6 +39,7 @@ router.post('/new', (req, res) => {
 			const newTweet = new Tweet({
 				description,
 				hashtag,
+				date: new Date(),
 				author: data._id,
 			});
 
