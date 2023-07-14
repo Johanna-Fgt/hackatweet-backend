@@ -33,7 +33,7 @@ router.post('/signup', (req, res) => {
 					token: newUser.token,
 					firstname: newUser.firstname,
 					username: newUser.username,
-					likedTweets: data.likedTweets,
+					likedTweets: newUser.likedTweets,
 				});
 			});
 		} else {
