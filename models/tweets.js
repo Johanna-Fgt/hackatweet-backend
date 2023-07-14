@@ -4,7 +4,7 @@ const tweetsSchema = mongoose.Schema({
 	author: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
 	description: String,
 	hashtag: [{ type: String, default: ' ' }],
-	isLikedCount: { type: Number, default: 0 },
+	isLikedBy: [{ type: String, default: ' ' }],
 	date: { type: Date, default: new Date() },
 });
 

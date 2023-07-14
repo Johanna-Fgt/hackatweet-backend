@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-
 const User = require('../models/users');
 const Tweet = require('../models/tweets');
 const { checkBody } = require('../modules/checkBody');
@@ -50,38 +49,24 @@ router.put('/update/:id', (req, res) => {
 	const { id } = req.params;
 	const { token } = req.body;
 
-	User.findOne({ token }).then((user) => {
-		if (user.likedTweets.includes(id)) {
-			User.updateOne({ token }, { $pull: { likedTweets: id } }).then((data) => {
-				if (!data.modifiedCount) {
-					res.json({ result: false });
-				} else {
-					Tweet.updateOne({ _id: id }, { $inc: { isLikedCount: -1 } }).then(
-						(data) => {
-							if (data.modifiedCount > 0) {
-								res.json({ result: true, likedTweets: user.likedTweets });
-							} else {
-								res.json({ result: false });
-							}
-						}
-					);
-				}
-			});
-		} else {
-			User.updateOne({ token }, { $addToSet: { likedTweets: id } }).then(
+	Tweet.findById(id).then((tweet) => {
+		if (tweet.isLikedBy.includes(token)) {
+			Tweet.updateOne({ _id: id }, { $pull: { isLikedBy: token } }).then(
 				(data) => {
-					if (!data.modifiedCount) {
-						res.json({ result: false });
+					if (data.modifiedCount > 0) {
+						res.json({ result: true });
 					} else {
-						Tweet.updateOne({ _id: id }, { $inc: { isLikedCount: 1 } }).then(
-							(data) => {
-								if (data.modifiedCount > 0) {
-									res.json({ result: true });
-								} else {
-									res.json({ result: false });
-								}
-							}
-						);
+						res.json({ result: false });
+					}
+				}
+			);
+		} else {
+			Tweet.updateOne({ _id: id }, { $addToSet: { isLikedBy: token } }).then(
+				(data) => {
+					if (data.modifiedCount > 0) {
+						res.json({ result: true });
+					} else {
+						res.json({ result: false });
 					}
 				}
 			);
@@ -93,7 +78,7 @@ router.put('/update/:id', (req, res) => {
 router.delete('/delete/:id', (req, res) => {
 	const { id } = req.params;
 	const { token } = req.body;
-	//TODO CAREFULL SUR QUI PEUT DELETE
+
 	User.findOne({ token }).then((data) => {
 		if (!data) {
 			res.json({ result: false });
@@ -108,30 +93,6 @@ router.delete('/delete/:id', (req, res) => {
 			res.json({ result: false });
 		}
 	});
-});
-
-/* Get /:hashtag - Find and return specific tweets */
-router.get('/:hashtag', (req, res) => {
-	const { hashtag } = req.params;
-
-	Tweet.find({ hashtag })
-		.populate('author')
-		.then((data) => {
-			if (data) {
-				console.log('Test : ', data);
-				const tweets = data.map((tweet) => ({
-					description: tweet.description,
-					date: tweet.date,
-					username: tweet.author.username,
-					firstname: tweet.author.firstname,
-					hashtag: tweet.hashtag,
-				}));
-				console.log(tweets);
-				res.json({ result: true, tweets });
-			} else {
-				res.json({ result: false });
-			}
-		});
 });
 
 module.exports = router;

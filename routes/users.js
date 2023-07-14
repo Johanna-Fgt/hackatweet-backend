@@ -70,14 +70,4 @@ router.post('/signin', (req, res) => {
 	});
 });
 
-// router.get('/canBookmark/:token', (req, res) => {
-//   User.findOne({ token: req.params.token }).then(data => {
-//     if (data) {
-//       res.json({ result: true, canBookmark: data.canBookmark });
-//     } else {
-//       res.json({ result: false, error: 'User not found' });
-//     }
-//   });
-// });
-
 module.exports = router;
